@@ -17,7 +17,14 @@ const isValidPhone = (str) =>
 
 function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false);
-  const username = useSelector((state) => state.user.username);
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+    error: errorAddress,
+  } = useSelector((state) => state.user);
+  const isLoadingAddress = addressStatus === "loading";
   const navigation = useNavigation();
   const isSubmitted = navigation.state === "submitting";
   const formErrors = useActionData();
@@ -66,22 +73,32 @@ function CreateOrder() {
               name="address"
               required
               className="input w-full"
+              disabled={isLoadingAddress}
+              defaultValue={address}
             />
+            {addressStatus === "error" && (
+              <p className="mt-2 rounded-md bg-red-100 p-1 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
           </div>
-          <span className="absolute right-[3px] z-50">
-            <Button
-              type="small"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(fetchAddress());
-              }}
-            >
-              Get position
-            </Button>
-          </span>
+          {!position.latitude && !position.longitude && (
+            <span className="absolute right-[3px] z-50">
+              <Button
+                disabled={isLoadingAddress}
+                type="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+              >
+                Get position
+              </Button>
+            </span>
+          )}
         </div>
 
-        <div className="mb-12 flex items-center gap-5">
+        <div className="top-[3px] mb-12 flex items-center gap-5">
           <input
             className="h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400 focus:ring-offset-2"
             type="checkbox"
@@ -97,7 +114,16 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <Button disabled={isSubmitted} type="primary">
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position.longitude && position.latitude
+                ? `${position.longitude},${position.latitude}`
+                : ""
+            }
+          />
+          <Button disabled={isSubmitted || isLoadingAddress} type="primary">
             {isSubmitted
               ? "Placing order..."
               : `Order now for ${formatCurrency(totalPrice)}`}
