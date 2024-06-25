@@ -33,8 +33,6 @@ function CreateOrder() {
     <div className="px-4 py-6">
       <h2 className="mb-8 text-xl font-semibold">Ready to order? Let's go!</h2>
 
-      <button onClick={() => dispatch(fetchAddress())}>Get position</button>
-
       {/* <Form method="POST" action="order/new"> */}
       <Form method="POST">
         <div className="mb-5 flex gap-2 sm:flex-row sm:items-center">
@@ -60,7 +58,7 @@ function CreateOrder() {
           </div>{" "}
         </div>
 
-        <div className="mb-5 flex gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-5 flex gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
           <div className="grow">
             <input
@@ -70,6 +68,17 @@ function CreateOrder() {
               className="input w-full"
             />
           </div>
+          <span className="absolute right-[3px] z-50">
+            <Button
+              type="small"
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch(fetchAddress());
+              }}
+            >
+              Get position
+            </Button>
+          </span>
         </div>
 
         <div className="mb-12 flex items-center gap-5">
